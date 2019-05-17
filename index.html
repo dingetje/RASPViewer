@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RASP BLIPMAPS voor Nederland, Noord Belgie en Noordwest Duitsland</title>
+  <meta http-equiv="Expires" Content="-1">
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<!--
+	RASPtableGM
+	paul.scorer01_at_gmail.com
+
+	Features:
+	* Autosize Selectors and Image for display
+	* Shift-Scroll Wheel adjusts Opacity of Overlay
+	* Normal Google Maps Controls (Dbl-L-Click, Drag, Scroll Wheel)
+	* Single L-Click for Forwards within a day
+	* R-Click or Long-Left-Click (3 sec+) gives InfoWindow @ Location with Value for time or whole day
+	* Loads image for next time on Day/Param selection
+	* Soundings indicated by Clickable Markers
+	* Auto select times for STD / DST
+	* NB: M$ Windows users must ensure TimeZone and "Adjust clock for Daylight Saving" is set in Control Panel->Date & Time
+
+	* Airspace files from http://3dairspace.org.uk/
+	  You can use google-earth to split out airspace classes
+
+    RASPtableLeaf
+	Antoine Megens (antoine.megens_at_gmail.com)
+	* based on UK version and modified for RASP NL
+	* Added Animate button and animate speed spinbox
+	* Removed Archives and SkewT/XBL Plot popup CGI (too complex!)
+	* Added Dutch and German waypoints (airfields and outlanding only to reduce clutter)
+	* Added Dutch and (reduced) German airspace
+	* Added stylesheets
+    * Rewrote to use Leaflet Map API instead of Google Map API to avoid costs (~28K free API hits allowed/Month)
+	* Renamed from RASPtableGM to RASPViewer
+    * Added Stammer "toner" and "terrain" layer selection
+    * Added self hosted Open Street Map street layer
+	
+	TODO: 
+	* GUI improvements for mobile devices (collapsible controls)
+	* Belgium airspace and waypoints 
+-->
+
+  <META content="Dr. John W. (Jack) Glendening" name="author">
+  <META content="Hendrik Hoeth" name="author">
+  <META content="Michel Hagoort" name="author">
+  <meta content="David Hofstee" name="author">
+  <meta content="Antoine Megens" name="author">
+  <META content="RASP, BLIPMAP, BLIPMAPS, Wetter, Segelflugwetter, Segelflugwetterbericht, Segelflug, weather forecast, Flugwetter, Wettervorhersage, Wetterbericht, Segelflugwettervorhersage, soaring, weer, weersvoorspelling, zweefvliegweer, vliegweer, weerbericht, zweefvliegen" name="keywords">
+  <META content='Zweefvlieg weersvoorspelling voor Nederland, Noord Belgie en Noordwest Duitsland' name="description">
+  <meta http-equiv="Content-Script-Type" content="text/javascript">
+  <script type= "text/javascript">
+		// CHANGE THESE FOR YOUR SITE
+		var Server = "https://blipmaps.nl/RASPViewer/";
+		var SAVE_DAYS = 5;	// Number of days of saved wrfout files (inc Today!)
+					// MUST aggree with LSAVE_DAYS in rasp.run.parameters.REGIONXYZ
+
+		// Put your times below for January under "STD" and for the "other" time standard under "DST"
+		// These are probably the wrong way round for the Southern Hemisphere :-)
+		var tzArray = ["STD", "DST"];
+		tzArray["STD"] = ["0830", "0900", "0930", "1000", "1030", "1100", "1130", "1200", "1230", "1300", "1330", "1400", "1430", "1500", "1530", "1600", "1630", "1700", "1730", "1800", "1830", "1900" ];
+		tzArray["DST"] = ["0930", "1000", "1030", "1100", "1130", "1200", "1230", "1300", "1330", "1400", "1430", "1500", "1530", "1600", "1630", "1700", "1730", "1800", "1830", "1900", "1930", "2000" ];
+
+		// Placeholder - I don't have windowed runs
+		// var w2times = ["0900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800"];
+
+		/* Change the size of the Plot Title
+		 * Maximum recommended value is 1.95
+		 * Minimum is 0 (No Title)
+		 */
+		var TitleScale = 1.0;	// Default
+	</script>
+
+  <link rel="stylesheet" href="css/stylesheet.css">
+  <link rel="stylesheet" href="css/leaflet.css">
+  <link rel="stylesheet" href="css/Control.Opacity.css" />
+  <link rel="stylesheet" href="css/easy-button.css" />
+  <!-- link rel="stylesheet" href="css/font-awesome.min.css"> -->
+
+  <!-- link rel="stylesheet" href="css/jquery-ui-1.10.3.custom.min.css" / -->
+
+  <!-- BUT *DON'T* CHANGE THESE UNLESS YOU KNOW WHAT YOU'RE DOING :-) -->
+  <!-- NOTE: Order is important here! -->
+  <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+  <script type="text/javascript" src="js/leaflet.js"></script>
+  <script type="text/javascript" src="js/tile.stamen.js"></script>
+  <!-- Bring in the leaflet KML plugin -->
+  <script type="text/javascript" src="js/leaflet-plugins/KML.js"></script>
+  <script type="text/javascript" src="js/leaflet-plugins/easy-button.js"></script>
+  <!-- script type="text/javascript" src="js/leaflet-plugins/leaflet-sidebar.js"></script> -->
+
+  <script type="text/javascript" src="js/paramList.js"></script>
+  <script type="text/javascript" src="js/corners_leaflet.js"></script>
+  <script type="text/javascript" src="js/soundings_leaflet.js"></script>
+  <script type="text/javascript" src="js/TurnPts.js"></script>
+  <!-- http://bluebirdjs.com/docs/getting-started.html -->
+  <script type="text/javascript" src="js/bluebird.min.js"></script>
+  <!-- https://sindresorhus.com/screenfull.js/ -->
+  <script type="text/javascript" src="js/screenfull.min.js"></script>
+  <script type="text/javascript" src="js/RASPtableLeaf.js"></script>
+  <script type="text/javascript" src="js/ExtDraggableObjectLeaf.js"></script>
+  <script type="text/javascript" src="js/SpinBox.js"></script>
+  <script type="text/javascript" src="js/Control.Opacity.js"></script>
+  <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script>
+</head>
+<body>
+	<noscript>
+		<h1 align="center"><font color=red>This page requires JavaScript to be enabled</font></h1>
+	</noscript>
+	<table width="100%"> <!-- Outermost Table - 1 Row; 2 elements: Form + Image -->
+      <colgroup>
+       <col span="1" class="maincolleft">
+       <col span="1" class="maincolright">
+      </colgroup>
+	  <tbody>
+		<tr>
+			<td class="gmnoprint" valign="top">	<!-- All the Selection Boxes -->
+				<div id="selectorDiv" width="150px">
+					<table id="selectors" class="selectorsTable">
+					  <tbody>
+						<tr>
+							<td>	<!-- Day -->
+								<select title="Select Day" id="Day" size="6">
+									<option>Wednesday 18 Jun</option> <!-- filled by script -->
+								</select>
+							</td>
+							<td> <!-- Time -->
+								<select title="Select Time" id="Time" style="width: 70px;">
+									<option>0700</option> <!-- filled by script -->
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td colspan=2 align="center">
+								<form id="popup" action="">
+										<div class="tooltip"><b>Info Popup:</b>
+											<span class="tooltiptext">Right click<br/>Popup Type</span>
+										</div>
+									<input type="radio" name="info" checked value="Value">Value 
+									<input type="radio" name="info" value="Day">Day 
+								</form>
+							</td>
+						</tr>
+						<tr>
+							<td colspan=2 align="center">
+								<a class="myButton" title="Switch between Full and Reduced parameter sets" id="paramSet">Press for Full Parameter Set</a>
+							</td>
+						</tr>
+						<tr>
+							<td colspan=2 id="paramSelector">	<!-- Parameter -->
+								<div data-tooltip="Title" id="paramTooltip"> <!-- tooltip is set in script -->
+								<select title="Select Parameter" id="Param" size="10" style="width: 100%;">
+									<optgroup class="paramoptions">
+										<option style="color: red;" value="nope1">- - - THERMAL PARAMETERS - - -</option>
+										<!-- Filled in by script from paramList.js -->
+									</optgroup>
+								</select>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td title="Animate" nowrap colspan=2 align="center">
+								<div id="animateRow">
+									<a id="animateButton" class="myButton" onClick="animateTimer();">Start Animation</a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+						 <td nowrap colspan=2 align="center">
+             <div id="animationDelayRow">
+							<table>
+								<tr>
+									<td>
+										<div class="tooltip"><b>Delay:</b>
+											<span class="tooltiptext">Animation Delay<br/>in ms</span>
+										</div>
+										<span id="animateDelay"><input id='animateDelayInput'></span><span> ms</span>
+									</td>
+								</tr>
+							</table>
+             </div>
+						</td>
+						</tr>						
+						<tr>
+							<td title="Specify a Task" colspan=2>
+								<div align="center" id="specifyTaskRow">
+									<a class="myButton" onclick="addTPMarkers();"> Specify Task </a>
+								</div>
+							<td>
+						</tr>
+						<tr>
+							<td title="Clear Task" colspan=2>			
+								<div align="center" id="clearTaskRow">
+									<a class="myButton" onclick="clearTask();"> Clear Task </a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan = 2>
+								<div align="center" id="removeMarkersRow">
+									<a class="myButton" onclick="rmTPMarkers();"> Remove Waypoints </a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan=2 align="center" nowrap style="font-size: 12px;">
+								<div id="airspaceForm">
+								 <form id="airspace" action="" title="Show/hide airspace classes">
+									AirSpace
+									<input onClick="doAirspace();" name="air" type="checkbox" value="A">A
+									<input onClick="doAirspace();" name="air" type="checkbox" value="B">B
+									<input onClick="doAirspace();" name="air" type="checkbox" value="C">C
+									<input onClick="doAirspace();" name="air" type="checkbox" value="D">D
+									<input onClick="doAirspace();" name="air" type="checkbox" value="X">X
+								 </form>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td title="User Guide" colspan=2 >
+								<div align="center">
+									<a class="myButton" onClick="return popup(Server+'RASPtableIntro.html', 'User Guide', 550, 470)">User Guide</a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td title="Legal Stuff" colspan=2 >
+								<div align="center">
+									<a class="myButton" onClick="return popup('Disclaimer.html', 'Disclaimer', 550, 370)">Disclaimer</a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td title="Toggle Full Screen" colspan=2>
+								<div align="center">
+								   <label class="switch">
+									 <input id="fullscreentoggle" type="checkbox" onClick="toggleFullScreen();">
+									<span class="slider round"></span>
+								  </label>
+								</div>
+							</td>
+						</tr>
+					  </tbody>
+					</table>
+					<div id="Url" align="center" title="URL of this exact Page">	
+						<!-- Filled in by javascript -->
+					</div>
+					<div id="Coffee" align="center" title="Please give me a coffee">	
+                                                <br /><br />Please support this website:<br />
+						<script type='text/javascript'>kofiwidget2.init('Support Me on Ko-fi', '#46b798', 'N4N2VIMO');kofiwidget2.draw();</script> 
+					</div>
+				</div> <!-- End selectors div -->
+			</td>	<!-- End Selection Boxes -->
+			<td id="imgdata" valign="top"> <!-- RASP images go here -->
+				<div id="imgDiv">
+					<table class="raspmain">
+						<tr>
+							<td>
+	  							<div id="topDiv" >
+		  						   <div id="topTitle" >
+                       <span>
+                        <a class="prev-wrapper" onclick="prevDay();" title="Previous Day"><img src="img/prev-button.png" alt="#"></a>
+			  	  					  <img id="theTitle" src="" alt="The Title">
+                        <a class="next-wrapper" onclick="nextDay();" title="Next Day"><img src="img/next-button.png" alt="#" id="next-day-button"></a>
+                       </span>
+  					  		    </div>
+                  </div>
+							</td>
+							<td></td> <!-- Dummy Cell in upper right corner -->
+						</tr>
+						<tr>
+							<td>
+								<div id="zoomBox" style="width: 1024px; height: 800px;"></div>
+							</td>
+							<td>
+								<div id="sideScale">
+									<img id="theSideScale" src="" alt="Side Scale">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div id="botScale">
+									<img id="theScale" alt="Bottom Scale" src="">
+								</div>
+							</td>
+							<td></td> <!-- Dummy Cell -->
+						</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
+	  </tbody>
+	</table>
+	<!-- Finally, kick the javascript into action -->
+	<script type="text/javascript">initIt();</script>
+</body>
+</html>

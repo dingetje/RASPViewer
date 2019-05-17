@@ -1,0 +1,40 @@
+&share
+ wrf_core             = 'ARW'
+ max_dom              = 2,
+ start_date = '2019-04-18_06:00:00', '2019-04-18_06:00:00',
+ end_date   = '2019-04-18_18:00:00', '2019-04-18_18:00:00',
+ interval_seconds     = 10800,
+ io_form_geogrid      = 2,
+/
+
+&geogrid
+ parent_id            = 1,      1,
+ parent_grid_ratio    = 1,      9,
+ i_parent_start       = 1,      53,
+ j_parent_start       = 1,      45,
+ e_we                 = 121,     163,
+ e_sn                 = 106,     136,
+ geog_data_res        = '10m', '2m',
+ dx                   = 36000,
+ dy                   = 36000,
+ map_proj             = 'lambert',
+ ref_lat              = 52.13,
+ ref_lon              = 6.85,
+ truelat1             = 52.03,
+ truelat2             = 52.03,
+ stand_lon            = 5.55,
+ GEOG_DATA_PATH       = '/home/michel/pauls/geog'
+ OPT_GEOGRID_TBL_PATH = '/home/michel/pauls/RUN.TABLES'
+/
+
+&ungrib
+ out_format           = 'WPS',
+ prefix               = 'UNGRIB',
+/
+
+&metgrid
+ fg_name              = 'UNGRIB',
+ io_form_metgrid      = 2,
+ opt_metgrid_tbl_path   = '/home/michel/pauls/RUN.TABLES'
+/
+

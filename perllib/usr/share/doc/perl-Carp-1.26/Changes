@@ -1,0 +1,37 @@
+version 1.26; 2012-06-18
+
+  * bugfix: get ", <fh> line 123" phrase from CORE::die, not allowing
+    influence by any CORE::GLOBAL::die override, so that Carp can be
+    used as part of a CORE::GLOBAL::die override
+
+  * on VMS, skip some tests that rely on open3() which doesn't work
+    there yet
+
+version 1.25; 2012-02-16
+
+  * bugfix: avoid failure to export to very old (Perl 5.6) versions of
+    warnings.pm, which could occur due to circular dependency
+
+  * bugfix: avoid vivifying "utf8" stash on Perl 5.6, which caused swash
+    loading to fail in some situations
+
+  * add dot to end of message from Carp, to match the formatting from
+    CORE::die
+
+  * synch Carp::Heavy version number to Carp
+
+version 1.24; 2012-02-02
+
+  * add ", <fh> line 123" phrase to messages, to match core die
+
+version 1.23; 2011-09-09
+
+  * bugfix: make Carp::Heavy load Carp, as it used to prior to 1.22,
+    for backward compatibility
+
+  * avoid " in Carp.t test programs, which caused false failures on
+    Win32 due to faulty system()
+
+version 1.22; 2011-09-04
+
+  * first CPAN release

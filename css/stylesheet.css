@@ -1,0 +1,379 @@
+/* stylesheet for RASP NETHERLANDS */
+
+textarea {background-color: #ffffff;
+		font-family: verdana,arial,helvetica;
+		font-size: 8pt
+}
+
+.optionBoldBlue {
+	font-weight: bold;
+	color: blue;
+	font-size: 90%;
+}
+
+.optionBoldRed {
+	font-weight: bold;
+	color: red;
+	font-size: 90%;
+}
+
+html { height: 100% }
+
+body { 
+  height: 100%; 
+  margin: 0px; 
+  padding: 0px;
+  font-size: -moz-calc(0.4+1vmin);
+  font-size: -webkit-calc(0.4+1vmin);
+  font-size: calc(0.4+1vmin);
+}
+
+tr {
+    height:14px;
+    line-height: 14px; /*15px;*/
+}
+
+b {
+	font-size: 90%;
+}
+
+.selectorsTable {
+	border: none;
+	border-spacing: 0;
+	padding: 1px;
+}
+
+.raspmain {
+	border: none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+.maincolleft {
+   width: 10%;
+}
+
+.maincolright {
+	width: 90%;
+}
+
+.paramoptions {
+	font-size: 70%;
+}
+
+.spinBox{
+  position      : relative;
+  display       : inline-block;
+  padding-right : 0.875em;
+  border-radius : 0.25em;
+  box-shadow    : 0 0.0625em 0 rgba(255,255,255,0.5);
+}
+
+.spinBox input{
+  display                   : block;
+  width                     : 50px;
+  height                    : 1.5625em;
+  padding                   : 0 0.25em;
+  border                    : 0.0625em solid rgb(224,224,224);
+  border-right              : none;
+  border-top-left-radius    : 0.25em;
+  border-bottom-left-radius : 0.25em;
+  color                     : rgb(64,64,64);
+  font-family               : inherit;
+  font-size                 : 1em;
+  text-align                : right;
+  box-shadow                : 0 0.125em 0.125em rgba(0,0,0,0.03125) inset;
+}
+
+.spinBox input[disabled]{
+  background : rgb(240,240,240);
+}
+
+.spinBoxUp,
+.spinBoxDown{
+  position         : absolute;
+  right            : 0;
+  display          : block;
+  width            : 0.75em;
+  height           : 0.75em;
+  border           : 0.0625em solid rgb(224,224,224);
+  background       : rgb(248,248,248);
+  background-image : -webkit-linear-gradient(rgb(248,248,248),rgb(240,240,240));
+  background-image :         linear-gradient(rgb(248,248,248),rgb(240,240,240));
+  cursor           : pointer;
+}
+
+.spinBox input[disabled] + span,
+.spinBox input[disabled] + span + span{
+  background : rgb(240,240,240);
+  cursor     : auto;
+}
+
+.spinBoxUp span,
+.spinBoxDown span{
+  display : block;
+  width   : 0.75em;
+  height  : 0.75em;
+}
+
+.spinBoxUp{
+  top                     : 0;
+  border-top-right-radius : 0.25em;
+}
+
+.spinBoxUp span{
+  background : url('../img/arrow-up.png') no-repeat center center;
+}
+
+.spinBoxDown{
+  bottom                     : 0;
+  border-bottom-right-radius : 0.25em;
+}
+
+.spinBoxDown span{
+  background : url('../img/arrow-down.png') no-repeat center center;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 135px;
+  background-color: #ffffe6;
+  color: #000;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  box-shadow: 3px 3px;
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #ffffe6 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+div#paramTooltip:hover:before {
+    content: attr(data-tooltip);
+    position: absolute;
+  	width: 55%;
+    padding: 5px 10px;
+    margin: 25px 10px 20px 290px;
+    background: #ffffe6;
+    color: black;
+    border-radius: 6px;
+    box-shadow: 3px 3px;
+    overflow-wrap: break-word;
+  	z-index: 1200;
+	  font-family:Arial;
+  	font-size:14px;	
+}
+
+div:#paramTooltip:hover:after {
+    content: '';
+    position: absolute;
+    margin: 6px 0 0 3px;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-right: 10px solid orange;
+    border-bottom: 5px solid transparent;
+}
+
+#loading-indicator {
+ position:absolute;  
+ top:50%;  
+ left:50%;  
+ margin:-100px 0 0 -100px;  
+ width:100px;  
+ height:100px;  
+}
+
+div#osmcredits {
+   position: fixed;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   width: 100%;
+   height: 48px;
+   margin: 0;
+   padding: 6px;
+   z-index: 1000;
+   background: transparent;
+   max-width:380px;
+   cursor: pointer;
+   font-family: Product Sans, Relish, Helvetica, Arial, sans-serif; 
+}
+
+.myButton {
+	-moz-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
+	box-shadow:inset 0px 1px 0px 0px #bbdaf7;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #79bbff), color-stop(1, #378de5));
+	background:-moz-linear-gradient(top, #79bbff 5%, #378de5 100%);
+	background:-webkit-linear-gradient(top, #79bbff 5%, #378de5 100%);
+	background:-o-linear-gradient(top, #79bbff 5%, #378de5 100%);
+	background:-ms-linear-gradient(top, #79bbff 5%, #378de5 100%);
+	background:linear-gradient(to bottom, #79bbff 5%, #378de5 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#79bbff', endColorstr='#378de5',GradientType=0);
+	background-color:#79bbff;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #84bbf3;
+	display:inline-block;
+	cursor:pointer;
+	margin: 1px;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:12px;
+	font-weight:bold;
+	padding:3px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #528ecc;
+	white-space: nowrap;
+}
+.myButton:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #378de5), color-stop(1, #79bbff));
+	background:-moz-linear-gradient(top, #378de5 5%, #79bbff 100%);
+	background:-webkit-linear-gradient(top, #378de5 5%, #79bbff 100%);
+	background:-o-linear-gradient(top, #378de5 5%, #79bbff 100%);
+	background:-ms-linear-gradient(top, #378de5 5%, #79bbff 100%);
+	background:linear-gradient(to bottom, #378de5 5%, #79bbff 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#378de5', endColorstr='#79bbff',GradientType=0);
+	background-color:#378de5;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 22px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(32px);
+  -ms-transform: translateX(32px);
+  transform: translateX(32px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 16px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.prev-wrapper img {
+	position:absolute;
+	top: 0;
+	bottom:0;
+	left: 0;
+	right:0;
+	width: 30px;
+	height: 30px;
+	z-index: 100;
+}
+
+.next-wrapper img {
+	position:absolute;
+	top: 0;
+	bottom:0;
+	left: 0;
+	right:0;
+	width: 30px;
+	height: 30px;
+	z-index: 100;
+}
+
+.area-left {
+  width: 20%;
+  float: left;
+  margin-right: 1em;
+}
+
+.area-right {
+  width: calc(80% - 1em);
+  float: right;
+}
+
+li {
+  white-space:nowrap;
+}
+
+ul{
+ width:250px;
+ overflow:auto;
+}
