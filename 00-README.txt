@@ -17,14 +17,10 @@ They can be split out into class_A.kmz etc using google-earth
 The topo files can be produced using replot to plot "wrf=HGT" for your region
 Rename the wrf=HGT*.body.png file to topo<R>.body.png where <R> is the domain resolution
 And similarly for other .png files 
-Copy to the RASPtableGM directory.
+Copy to the topo directory.
 See the code for more details.
 
-The Turnpts file is derived from the British Gliding Association Turning Point List
-http://www.newportpeace.co.uk/turningpoints.htm
+The Turnpts file is derived from the SeeYou CUPS waypoints file.
+The TurnPts file indicates the format.
 
-Maybe there is a similar list for your area
-The TurnPts file indicates the format
-
-Note that this file has been updated for RASP-UK to show the Turning Points in "Specify Task"
-
+Note that this file has been updated for RASP-NL to show the Turning Points in "Specify Task"
