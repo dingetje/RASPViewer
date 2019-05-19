@@ -7,7 +7,7 @@ Demo at the production site https://blipmaps.nl/RASPViewer/
 Airspace source:
 http://3dairspace.org.uk/
 
-Use Google Earth to split the airspace into seperate classes. The Leaflet KML loader does not support .kmz (compressed KML) so make sure to extract (i.e. use 7-zip) and rename the doc.kml to airspace_class_x.kml (where x is de class type i.e.A,B,C, etc.) and place in the airspace folder.
+Use Google Earth to split the airspace into seperate classes. The Leaflet KML loader does not support .kmz (compressed KML) so make sure to extract (i.e. use 7-zip) and rename the doc.kml to airspace_class_x.kml (where x is de class type i.e. A,B,C, etc.) and place in the airspace folder.
 Modify the icon style in the resulting .kml file as follows:
 
 ```
@@ -26,7 +26,7 @@ Modify the icon style in the resulting .kml file as follows:
 	</Style>
 ```
 
-To merge multiple countries into one airspace class, add another <Folder> node in the KML file.
+To merge multiple countries into one airspace class, add another `<Folder>` node in the KML file.
 
 # RASP data files
 Not included in this repository are the actual RASP data folders. They are expected in NL+0, NL+1, etc. in the root folder.
