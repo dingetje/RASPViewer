@@ -22,22 +22,22 @@
 	* Airspace files from http://3dairspace.org.uk/
 	  You can use google-earth to split out airspace classes
 
-    RASPtableLeaf
+  RASPtableLeaf
 	Antoine Megens (antoine.megens_at_gmail.com)
-	* based on UK version and modified for RASP NL
-	* Added Animate button and animate speed spinbox
-	* Removed Archives and SkewT/XBL Plot popup CGI (too complex!)
-	* Added Dutch and German waypoints (airfields and outlanding only to reduce clutter)
-	* Added Dutch and (reduced) German airspace
-	* Added stylesheets
-    * Rewrote to use Leaflet Map API instead of Google Map API to avoid costs (~28K free API hits allowed/Month)
-	* Renamed from RASPtableGM to RASPViewer
-    * Added Stammer "toner" and "terrain" layer selection
-    * Added self hosted Open Street Map street layer
+  * based on UK version and modified for RASP NL
+  * Added Animate button and animate speed spinbox
+  * Removed Archives and SkewT/XBL Plot popup CGI (too complex!)
+  * Added Dutch and German waypoints (airfields and outlanding only to reduce clutter)
+  * Added Dutch, Belgium and (reduced) German airspace
+  * Added stylesheets
+  * Rewrote to use Leaflet Map API instead of Google Map API to avoid costs (~28K free API hits allowed/Month)
+  * Renamed from RASPtableGM to RASPViewer
+  * Added Stammer "toner" and "terrain" layer selection
+  * Added self hosted Open Street Map street layer
 	
 	TODO: 
 	* GUI improvements for mobile devices (collapsible controls)
-	* Belgium airspace and waypoints 
+	* Belgium waypoints 
 -->
 
   <META content="Dr. John W. (Jack) Glendening" name="author">
@@ -210,6 +210,7 @@
 									<input onClick="doAirspace();" name="air" type="checkbox" value="B">B
 									<input onClick="doAirspace();" name="air" type="checkbox" value="C">C
 									<input onClick="doAirspace();" name="air" type="checkbox" value="D">D
+									<input onClick="doAirspace();" name="air" type="checkbox" value="E">E
 									<input onClick="doAirspace();" name="air" type="checkbox" value="X">X
 								 </form>
 								</div>
