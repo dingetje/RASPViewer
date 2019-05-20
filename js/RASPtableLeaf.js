@@ -309,7 +309,7 @@ function initIt()
   // Ko-fi button
   L.easyButton('<img src="img/Ko-fi_Icon_Blue.png" width="26" height="26" alt="Support us!" title="Buy a Coffee for RASP blipmaps.nl" class="kofibuttononmap">',
     function(btn, map){ 
-      window.open("https://ko-fi.com/N4N2VIMO","_blank");
+      window.open("https://ko-fi.com/blipmapsnl","_blank");
     }).addTo(map);
 
   // add the layer control
@@ -540,8 +540,8 @@ function addTPMarkers()
     var lon = turnPts[p].latlon.split(',')[1];
     var pos = new L.latLng(lat, lon);
     var TpIcon = getIconForTpCategory(turnPts[p].cat[0]);
-  var marker = L.marker(new L.latLng(lat, lon), {icon: TpIcon, myId: p}).addTo(map);
-  marker.bindTooltip(turnPts[p].name, { permanent: false, direction: 'top'} );
+    var marker = L.marker(new L.latLng(lat, lon), {icon: TpIcon, myId: p}).addTo(map);
+    marker.bindTooltip(turnPts[p].name + '<br>' + turnPts[p].cat + '<br>freq: ' + turnPts[p].freq + ' MHz', { permanent: false, direction: 'top'} );
     marker.on('click', function() {
       var tp = this.options.myId;
       if(TParray[TParray.length - 1] == tp){
@@ -557,30 +557,30 @@ function addTPMarkers()
         this.setIcon(icon);
         removeTP(this);
       }
-    // round distance to 1 decimal
+      // round distance to 1 decimal
       var distance = drawTask().toFixed(1);
-    var text = '<div><ol>';
-    for(var i=0; i< task.length; i++) {
-     text += '<li>' + TParray[i] + '</li>';
-    }
-    text += '</ol></div><br>';
-    text += '<div><button type=button onclick="clearTask()">Clear Task</button></div><br>';
-    text += '<div><b>Task Distance: ' + distance + ' km</b></div>';
+      var text = '<div><ol>';
+      for(var i=0; i< task.length; i++) {
+        text += '<li>' + TParray[i] + '</li>';
+      }
+      text += '</ol></div><br>';
+      text += '<div><button type=button onclick="clearTask()">Clear Task</button></div><br>';
+      text += '<div><b>Task Distance: ' + distance + ' km</b></div>';
       var infoWindow = new L.popup( { minWidth: 'auto' })
             .setLatLng(this.getLatLng())
             .setContent(text)
             .openOn(map);
 
-    infoArray.push(infoWindow);
+      infoArray.push(infoWindow);
     });
-  TPmarkerArray.push(marker);
+    TPmarkerArray.push(marker);
   }
 }
 
 function clearTask()
 {
   if (flightPath) {
-  flightPath.remove();
+    flightPath.remove();
   }
   // restore original icons
   for (var i=0; i<task.length; i++) {
@@ -1257,10 +1257,12 @@ function doAirspace()
 		{
 			// then load the KML overlay
 			showLoading();
-			ASstring = head + "/airspace/airspace_class_" + airspacetype[i].value + ".kml";
+			var d = new Date().toLocaleString();
+			ASstring = head + "/airspace/airspace_class_" + airspacetype[i].value + ".kml?dummy=" + d;
 			airspaceArray[i] = new L.KML(ASstring, {async: true });
 			airspaceArray[i].on("loaded", function(e) {
 				hideLoading();
+//				this.setStyle(mystyle);
 				map.addLayer(this);
 				this.addTo(map);
 			});
