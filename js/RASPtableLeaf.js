@@ -1259,10 +1259,19 @@ function doAirspace()
 			showLoading();
 			var d = new Date().toLocaleString();
 			ASstring = head + "/airspace/airspace_class_" + airspacetype[i].value + ".kml?dummy=" + d;
-			airspaceArray[i] = new L.KML(ASstring, {async: true });
+			var mystyle = "#ff0000";
+			switch(airspacetype[i].value) {
+				case 'A': mystyle = "#ff0000"; break;
+				case 'B': mystyle = "#0000ff"; break;
+				case 'C': mystyle = "#e9871c"; break;
+				case 'D': mystyle = "#000000"; break;
+				case 'E': mystyle = "#ff00ff"; break;
+				case 'X': mystyle = "#902147"; break;
+			}
+			
+			airspaceArray[i] = new L.KML(ASstring, mystyle, {async: true });
 			airspaceArray[i].on("loaded", function(e) {
 				hideLoading();
-//				this.setStyle(mystyle);
 				map.addLayer(this);
 				this.addTo(map);
 			});
