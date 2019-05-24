@@ -5,13 +5,13 @@ L.KML = L.FeatureGroup.extend({
 		async: true
 	},
 
-	initialize: function(kml, options) {
+	initialize: function(kml, mystyle, options) {
 		L.Util.setOptions(this, options);
 		this._kml = kml;
 		this._layers = {};
 
 		if (kml) {
-			this.addKML(kml, options, this.options.async);
+			this.addKML(kml, mystyle, options, this.options.async);
 		}
 	},
 
@@ -31,14 +31,14 @@ L.KML = L.FeatureGroup.extend({
 		req.send(null);
 	},
 
-	addKML: function(url, options, async) {
+	addKML: function(url, mystyle, options, async) {
 		var _this = this;
-		var cb = function(gpx, options) { _this._addKML(gpx, options) };
+		var cb = function(gpx, options) { _this._addKML(gpx, mystyle, options) };
 		this.loadXML(url, cb, options, async);
 	},
 
-	_addKML: function(xml, options) {
-		var layers = L.KML.parseKML(xml);
+	_addKML: function(xml, mystyle, options) {
+		var layers = L.KML.parseKML(xml, mystyle);
 		if (!layers || !layers.length) return;
 		for (var i = 0; i < layers.length; i++)
 		{
@@ -56,13 +56,13 @@ L.KML = L.FeatureGroup.extend({
 
 L.Util.extend(L.KML, {
 
-	parseKML: function (xml) {
-		var style = this.parseStyle(xml);
+	parseKML: function (xml,mystyle) {
+		var style = this.parseStyle(xml, mystyle);
 		var el = xml.getElementsByTagName("Folder");
 		var layers = [], l;
 		for (var i = 0; i < el.length; i++) {
 			if (!this._check_folder(el[i])) { continue; }
-			l = this.parseFolder(el[i], style);
+			l = this.parseFolder(el[i], style, mystyle);
 			if (l) { layers.push(l); }
 		}
 		el = xml.getElementsByTagName('Placemark');
@@ -85,7 +85,7 @@ L.Util.extend(L.KML, {
 		return !e || e === folder;
 	},
 
-	parseStyle: function (xml) {
+	parseStyle: function (xml, mystyle) {
 		var style = {};
 		var sl = xml.getElementsByTagName("Style");
 
@@ -108,7 +108,7 @@ L.Util.extend(L.KML, {
 					var value = e.childNodes[0].nodeValue;
 					if (key === 'color') {
 						options.opacity = parseInt(value.substring(0, 2), 16) / 255.0;
-						options.color = "#" + value.substring(2, 8);
+						options.color = '#' + value.substring(2);
 					} else if (key === 'width') {
 						options.weight = value;
 					} else if (key === 'Icon') {
@@ -147,13 +147,17 @@ L.Util.extend(L.KML, {
 		return style;
 	},
 
-	parseFolder: function (xml, style) {
+	parseFolder: function (xml, style, mystyle) {
 		var el, layers = [], l;
 		el = xml.getElementsByTagName('Folder');
 		for (var i = 0; i < el.length; i++) {
 			if (!this._check_folder(el[i], xml)) { continue; }
-			l = this.parseFolder(el[i], style);
-			if (l) { layers.push(l); }
+			l = this.parseFolder(el[i], style, mystyle);
+			if (l) { 
+				l.setStyle(style);
+				l.setStyle( { color: mystyle, weight: 1 });
+				layers.push(l);
+			}
 		}
 		el = xml.getElementsByTagName('Placemark');
 		for (var j = 0; j < el.length; j++) {
