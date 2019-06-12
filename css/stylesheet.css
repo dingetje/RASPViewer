@@ -30,7 +30,7 @@ body {
 
 tr {
     height:14px;
-    line-height: 14px; /*15px;*/
+    line-height: 15px;
 }
 
 b {
@@ -186,14 +186,15 @@ div#paramTooltip:hover:before {
     position: absolute;
   	width: 55%;
     padding: 5px 10px;
-    margin: 25px 10px 20px 290px;
+    /*margin: 25px 10px 20px 290px;*/
+    margin: 10px 10px 20px 10px;
     background: #ffffe6;
     color: black;
     border-radius: 6px;
     box-shadow: 3px 3px;
     overflow-wrap: break-word;
   	z-index: 1200;
-	  font-family:Arial;
+	font-family:Arial;
   	font-size:14px;	
 }
 
@@ -254,7 +255,7 @@ div#osmcredits {
 	margin: 1px;
 	color:#ffffff;
 	font-family:Arial;
-	font-size:12px;
+	font-size:14px;
 	font-weight:bold;
 	padding:3px 24px;
 	text-decoration:none;
@@ -336,11 +337,20 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+.disclaimer {
+  font-size: small;
+  width: 290px;
+}
+
+.sidebarhelp {
+  width: 290px;
+}
+
 .prev-wrapper img {
 	position:absolute;
 	top: 0;
 	bottom:0;
-	left: 0;
+	left: 10px;
 	right:0;
 	width: 30px;
 	height: 30px;

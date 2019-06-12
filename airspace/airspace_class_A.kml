@@ -11,7 +11,7 @@
 				<w>1</w>
 				<h>1</h>
 			</Icon>
-      <color>000000ff</color>
+      <color>00ff0000</color>
 		</IconStyle>
 	</Style>
 	<Style id="khStyle1">
@@ -23,7 +23,7 @@
 				<w>1</w>
 				<h>1</h>
 			</Icon>
-      <color>000000ff</color>
+      <color>00ff0000</color>
 		</IconStyle>
 		<LabelStyle>
 			<color>4fffffff</color>

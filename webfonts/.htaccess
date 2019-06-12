@@ -1,0 +1,12 @@
+AddType application/vnd.ms-fontobject .eot
+AddType font/truetype .ttf
+AddType font/opentype .otf
+AddType font/opentype .woff
+AddType image/svg+xml .svg .svgz
+<FilesMatch "\.(woff)$">
+    Header unset Cache-control
+</FilesMatch>
+
+<FilesMatch "\.(eot)$">
+    Header unset Cache-control
+</FilesMatch>
