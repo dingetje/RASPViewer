@@ -5,6 +5,9 @@ Demo at the production site https://blipmaps.nl/RASPViewer/
 
 # Airspace
 Airspace source:
+https://maps.openaip.net/
+
+Old KML based airspace layers:
 http://3dairspace.org.uk/
 
 Use Google Earth to split the airspace into seperate classes. The Leaflet KML loader does not support .kmz (compressed KML) so make sure to extract (i.e. use 7-zip) and rename the doc.kml to airspace_class_x.kml (where x is de class type i.e. A,B,C, etc.) and place in the airspace folder.
