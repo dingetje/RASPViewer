@@ -4,10 +4,7 @@ RASPViewer for Dutch RASP BLIPMAPS soaring weather model predictions. For more i
 Demo at the production site https://blipmaps.nl/RASPViewer/
 
 # Airspace
-Airspace source:
-https://maps.openaip.net/
-
-Old KML based airspace layers:
+KML based airspace layers:
 http://3dairspace.org.uk/
 
 Use Google Earth to split the airspace into seperate classes. The Leaflet KML loader does not support .kmz (compressed KML) so make sure to extract (i.e. use 7-zip) and rename the doc.kml to airspace_class_x.kml (where x is de class type i.e. A,B,C, etc.) and place in the airspace folder.
@@ -31,8 +28,11 @@ Modify the icon style in the resulting .kml file as follows:
 
 To merge multiple countries into one airspace class, add another `<Folder>` node in the KML file.
 
-# Update Airspace
+# New Airspace Solution
 The KML based airspace solution has been replaced on the production site with an airspace layer, courtesey of openaip.net. Looks much better and is much, much faster.
+
+Airspace source:
+https://maps.openaip.net/
 
 # RASP data files
 Not included in this repository are the actual RASP data folders. They are expected in NL+0, NL+1, etc. in the root folder.
