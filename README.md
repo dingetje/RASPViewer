@@ -31,6 +31,9 @@ Modify the icon style in the resulting .kml file as follows:
 
 To merge multiple countries into one airspace class, add another `<Folder>` node in the KML file.
 
+# Update Airspace
+The KML based airspace solution has been replaced on the production site with an airspace layer, courtesey of openaip.net. Looks much better and is much, much faster.
+
 # RASP data files
 Not included in this repository are the actual RASP data folders. They are expected in NL+0, NL+1, etc. in the root folder.
 
