@@ -1,7 +1,7 @@
 # RASPViewer
 RASPViewer for Dutch RASP BLIPMAPS soaring weather model predictions. For more information about RASP BLIPMAPS look at http://www.drjack.info/
 
-Demo at the production site https://blipmaps.nl/RASPViewer/
+Demo at the production site https://blipmaps.nl/NETHERLANDS/
 
 # Airspace
 KML based airspace layers:
