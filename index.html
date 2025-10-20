@@ -6,6 +6,11 @@
   <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>RASP BLIPMAPS voor Nederland, Noord Belgie en Noordwest Duitsland</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
 
 <!--
     RASPtableGM
@@ -38,6 +43,11 @@
   * Added Stammer "toner" and "terrain" layer selection
   * Added self hosted Open Street Map street layer (reduced area)
   * GUI improvements for mobile devices (side-bar added)
+  * Added area selection
+  * Added notiflix notification
+  * Changed parameter description handling (on request now)
+  * Added IGC Viewer
+  * Added Meteograms
 -->
 
   <META content="Dr. John W. (Jack) Glendening" name="author">
@@ -50,7 +60,7 @@
   <meta http-equiv="Content-Script-Type" content="text/javascript">
   <script type= "text/javascript">
     // CHANGE THESE FOR YOUR SITE
-    var Server = "https://blipmaps.nl/RASPViewer/";
+    var Server = "https://blipmaps.nl/NETHERLANDS/";
     var SAVE_DAYS = 5;  // Number of days of saved wrfout files (inc Today!)
                 // MUST aggree with LSAVE_DAYS in rasp.run.parameters.REGIONXYZ
 
@@ -72,36 +82,50 @@
 
   <link rel="stylesheet" href="css/stylesheet.css">
   <link rel="stylesheet" href="css/leaflet.css">
+  <link rel="stylesheet" href="css/leaflet.awesome-markers.css" />
   <link rel="stylesheet" href="css/Control.Opacity.css" />
   <link rel="stylesheet" href="css/easy-button.css" />
   <link rel="stylesheet" href="css/all.min.css">
   <link rel="stylesheet" href="css/leaflet-sidebar.css" />
+  <link rel="stylesheet" href="../css/notiflix-1.9.1.min.css" />
 
   <!-- link rel="stylesheet" href="css/jquery-ui-1.10.3.custom.min.css" / -->
 
   <!-- BUT *DON'T* CHANGE THESE UNLESS YOU KNOW WHAT YOU'RE DOING :-) -->
   <!-- NOTE: Order is important here! -->
+  <script type="text/javascript" src="js/moment.min.js"></script>
+  <script type="text/javascript" src="js/moment-timezone-with-data.min.js"></script>
   <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
   <script type="text/javascript" src="js/leaflet.js"></script>
-  <script type="text/javascript" src="js/tile.stamen.js"></script>
-  <!-- Bring in the leaflet KML plugin -->
-  <script type="text/javascript" src="js/leaflet-plugins/KML.js"></script>
+  <script type="text/javascript" src="js/leaflet.awesome-markers.min.js"></script>
+  
+  <!-- IGC Viewer -->
+  <script type="text/javascript" src="js/parseigc.js"></script>
+  <script type="text/javascript" src="js/igcviewer.js"></script>
+  
+  <!-- Bring in the leaflet KML plugin, obsolete with openaip airspace -->
+  <!-- script type="text/javascript" src="js/leaflet-plugins/KML.js"></script> -->
   <script type="text/javascript" src="js/leaflet-plugins/easy-button.js"></script>
   <script type="text/javascript" src="js/leaflet-plugins/leaflet-sidebar.js"></script>
 
-  <script type="text/javascript" src="js/paramList.js"></script>
+  <script>document.write("<script type='text/javascript' src='js/paramList.js?v=" + Date.now() + "'><\/script>");</script>
   <script type="text/javascript" src="js/corners_leaflet.js"></script>
-  <script type="text/javascript" src="js/soundings_leaflet.js"></script>
+  <script>document.write("<script type='text/javascript' src='js/soundings_leaflet.js?v=" + Date.now() + "'><\/script>");</script>
+  <script>document.write("<script type='text/javascript' src='js/meteograms.js?v=" + Date.now() + "'><\/script>");</script>
   <script type="text/javascript" src="js/TurnPts.js"></script>
+  <script type="text/javascript" src="../js/areas.js"></script>
+
   <!-- http://bluebirdjs.com/docs/getting-started.html -->
   <script type="text/javascript" src="js/bluebird.min.js"></script>
   <!-- https://sindresorhus.com/screenfull.js/ -->
   <script type="text/javascript" src="js/screenfull.min.js"></script>
-  <script type="text/javascript" src="js/RASPtableLeafNew.js"></script>
+  <script>document.write("<script type='text/javascript' src='js/RASPtableLeafNew.js?v=" + Date.now() + "'><\/script>");</script>
   <script type="text/javascript" src="js/ExtDraggableObjectLeaf.js"></script>
   <script type="text/javascript" src="js/SpinBox.js"></script>
   <script type="text/javascript" src="js/Control.Opacity.js"></script>
   <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script>
+  <script type='text/javascript' src="../js/notiflix-1.9.1.min.js"></script>  
+  <script>document.write("<script type='text/javascript' src='../js/notificatie.js?v=" + Date.now() + "'><\/script>");</script>
 </head>
 <body>
  <noscript>
@@ -114,7 +138,9 @@
           <ul role="tablist">
               <li><a href="#home" role="tab"><i class="fa fa-bars fa-lg"></i></a></li>
               <li><a href="#task" role="tab"><i class="fa fa-map-marked-alt fa-lg"></i></a></li>
+              <li><a href="#areas" role="tab"><i class="fa fa-clone fa-lg"></i></a></li>
               <li><a href="#supportus" role="tab"><i class="fa fa-heart fa-lg"></i></a></li>
+              <li><a href="#igc" role="tab"><i class="fa fa-eye fa-lg"></i></a></li>
               <li><a href="#help" role="tab"><i class="fa fa-question-circle fa-lg"></i></a></li>
           </ul>
           <ul role="tablist">
@@ -141,30 +167,50 @@
               </p>
 
               <p>RASP BLIPMAPS voor Nederland, Noord Belgie en Noordwest Duitsland does not warrant that the website is free of viruses or other harmful components.</p>
+              <br>
+              <p>Email: rasp (at) blipmaps.nl</p>
             </div>
+          </div>
+          <div class="sidebar-pane" id="areas">
+             <h1 class="sidebar-header">Areas<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>             
+           <div style="align:center; width:290px;">
+             <br>
+           <br>
+             <table width="100%">             
+             <script type="text/javascript">createAreaLinks();</script>
+             </table>
+           </div>
           </div>
           <div class="sidebar-pane" id="help">
               <h1 class="sidebar-header">Help<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-			   <div style="align:center; width:290px;">
-			     <br>
-				 <br>
-			     <table width="100%">
-                 <tr>
-				   <td>
-				      <div align="center">
+                <div style="align:center; width:290px;">
+                 <table width="100%">
+                  <tr>
+                    <td><br>
+                     <div align="center">
                        <a class="myButton" title="User Guide" onClick="return popup(Server+'RASPtableIntro.html', 'User Guide', 550, 470)">User Guide</a>
-					  </div>
+                     </div>
+                    </td>
+                  </tr><tr>
+                    <td>
+                     <br>
+                     <div align="center">
+                      <a class="myButton" title="Disclaimer" onClick="return popup('Disclaimer.html', 'Disclaimer', 550, 370)">Disclaimer</a>
+                     </div>
+                    </td>
+                  </tr><tr>
+                     <td>
+					  <div align="center"><p>Email: rasp (at) blipmaps.nl</p></div>
+					 </td>
+                  </tr><tr>
+                   <td>
                     <br>
-				   </td>
-				 </tr><tr>
-				  <td>
-				    <div align="center">
-                     <a class="myButton" title="Disclaimer" onClick="return popup('Disclaimer.html', 'Disclaimer', 550, 370)">Disclaimer</a>
-				    </div>
-				  </td>
-				 </tr>
-				 </table>
-			   </div>
+                     <div contenteditable="false" id="helpNotification" style="width: 270px; border: 1px solid #ccc; padding: 5px; visibility: hidden;">
+                     </div>
+                   </td>
+                  </tr>
+                 </table>
+               </div>
           </div>
           <div class="sidebar-pane" id="supportus">
              <h1 class="sidebar-header">Support<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
@@ -172,6 +218,13 @@
              <div id="Coffee" title="Buy a Coffee for RASP blipmaps.nl">
                 <script type='text/javascript'>kofiwidget2.init('Support Me on Ko-fi', '#46b798', 'N4N2VIMO');kofiwidget2.draw();</script> 
              </div>
+             <div>
+                <!-- sponsored by KNVvL -->
+                <br><br>
+                <p>The Dutch RASP team is<br>proudly sponsored by:</p>
+                <a href="https://knvvl.nl/zweefvliegen" target="_blank"><img src="../images/knvvl/logo_big.png" style="width:200px; height:113px;" title="Sponsored by KNVvL"></a>
+              </div> 
+              <p>Email: rasp (at) blipmaps.nl</p>
           </div>
           <div class="sidebar-pane" id="link">
              <h1 class="sidebar-header">Page Link<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
@@ -183,7 +236,7 @@
                 </div>
                </td></tr>
               </table>
-          </div>
+          </div>      
           <div class="sidebar-pane" id="task">
              <h1 class="sidebar-header">Simple Task Planner<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
              <p class="sidebarhelp" style="font-size:small">
@@ -191,7 +244,7 @@
               Placing the mouse on a turnpoint will give you the turnpoint name, Left Click to add it to the task. 
               Use <strong>Clear Task</strong> to remove the drawn task and <strong>Remove Waypoints</strong> to remove the turnpoint markers.
              </p>
-			 <div style="align:center; width:290px;">
+             <div style="align:center; width:290px;">
               <table width="100%">
                <tr><td>
                   <div align="center" id="specifyTaskRow">
@@ -209,7 +262,7 @@
                   </div>
                </td></tr>
               </table>
-			 </div>
+             </div>
           </div>           
           <div class="sidebar-pane" id="home">
               <h1 class="sidebar-header">
@@ -225,7 +278,7 @@
                         <tbody>
                         <tr>
                           <td>  <!-- Day -->
-                            <select title="Select Day" id="Day" size="6">
+                            <select title="Select Day" id="Day" size="12" autofocus>
                               <option>Wednesday 18 Jun</option> <!-- filled by script -->
                             </select>
                           </td>
@@ -240,9 +293,10 @@
                             <form id="popup" action="">
                                 <div class="tooltip"><b>Info Popup:</b>
                                   <span class="tooltiptext">Right click<br/>Popup Type</span>
-                                </div>
+                                </div><br>
                               <input type="radio" name="info" checked value="Value">Value 
                               <input type="radio" name="info" value="Day">Day 
+                              <!-- input type="radio" name="info" value="XBL">XBL Plot -->
                             </form>
                           </td>
                         </tr>
@@ -285,8 +339,7 @@
                          </div>
                         </td>
                         </tr>                       
-                        <tr></tr>
-                        <tr>
+                        <!-- old KLM based airspace tr>
                           <td colspan=2 align="center" nowrap style="font-size: 12px;">
                             <div id="airspaceForm">
                              <form id="airspace" action="" title="Show/hide airspace classes">
@@ -300,17 +353,6 @@
                              </form>
                             </div>
                           </td>
-                        </tr>
-                        <tr></tr>
-                        <!-- tr>
-                          <td title="Toggle Full Screen" colspan=2>
-                            <div align="center">
-                               <label class="switch">
-                               <input id="fullscreentoggle" type="checkbox" onClick="toggleFullScreen();">
-                              <span class="slider round"></span>
-                              </label>
-                            </div>
-                          </td>
                         </tr -->
                         </tbody>
                       </table>
@@ -319,10 +361,66 @@
                 </tr>
             </table>
          </div> <!-- home tab -->
+         <div class="sidebar-pane" id="igc">
+           <h1 class="sidebar-header">IGC Viewer<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+             <div style="align:center; width:290px;">
+                <p style="font-size:small">
+                    A tool for viewing GPS tracks from gliding loggers.<br>
+                    The file must be in the
+                    International Gliding Commission (IGC) format.
+                </p>
+                <p style="font-size:small">
+                &copy; 2015-2016 Alistair Malcolm Green and Richard Brisbourne</p>
+                <label for="fileControl">Select a file to view:</label>
+                <input id="fileControl" type="file" />
+                <br><br>
+                <a class="myButton" onclick="clearIGC();">Clear IGC</a>
+                
+                <p style="font-size:small">
+                    <em>Note:</em> The file will be processed entirely within your web browser. Nothing will be uploaded to the Internet.
+                </p>
+                <div id="errorMessage" style="font-size:small">
+                </div>
+                
+                <!-- div id="slider" style="font-size:small">
+                 <label for="timeSlider">Time:</label>
+                 <button id="timeBack"><span class="fa fa-caret-left"></span></button>
+                 <input type="range" id="timeSlider" step="1" value="0" min="0" max="100" />
+                 <button id="timeForward"><span class="fa fa-caret-right"></span></button>
+                 <p id="timePositionDisplay"></p>
+                </div -->
+
+                <b>Preferences</b>
+                <p style="font-size:small">
+                    <label for="altitudeUnits">Altitude units:</label>
+                    <select id="altitudeUnits" autocomplete="off">
+                        <option value="metres">Metres</option>
+                        <option value="feet">Feet</option>
+                    </select>
+                </p>
+                <p style="font-size:small">
+                    <label for="timeZoneSelect">Time zone:</label>
+                    <select id="timeZoneSelect">
+                    </select>
+                </p>
+                <div id="igcFileDisplay" style="font-size:small">
+                    <b>Flight Information</b>
+                    <table id="headerInfo">
+                        <tbody></tbody>
+                    </table>
+                    <div id="igctask" style="font-size:small">
+                        <b>Task</b>
+                        <ul>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- IGC tab -->
      </div> <!-- Tab panes -->
   </div>   <!-- side-bar end -->
 
   <!-- RASP map -->
+  <div id="raspmap">
   <table>
     <tr>
       <!-- make some room for the side-bar -->
@@ -365,10 +463,29 @@
           </tr>
         </table>
        </div> <!-- imgDiv -->
+       <div id="knvvl" style="display: flex; justify-content: flex-end">
+        <!-- sponsored by KNVvL -->
+        <a href="https://knvvl.nl/zweefvliegen" target="_blank">
+          <img src="../images/knvvl/logo_big.png" alt="KNVvL" style="position: relative;top:-90px;right:91px; width:91px;height:auto;z-index: 1100;" title="Sponsored by KNVvL"></a>
+       </div>
+       <!-- time slider for the IGC Viewer -->
+        <div id="slider" style="font-size:small;position: relative;top:-150px;right:-30px; width:500px;height:auto;z-index: 1100;display:none">
+         <label for="timeSlider" style="font-weight:bold">Time:</label>
+         <button id="timeBack"><span class="fa fa-caret-left"></span></button>
+         <input type="range" id="timeSlider" step="1" value="0" min="0" max="100" style="width:70%"/>
+         <button id="timeForward"><span class="fa fa-caret-right"></span></button>
+         <p id="timePositionDisplay" style="font-weight:bold"></p>
+        </div>
       </td>
     </tr>
   </table>
-    <!-- Finally, kick the javascript into action -->
-    <script type="text/javascript">initIt();</script>
+ </div>
+<!-- Finally, kick the javascript into action -->
+ <script type="text/javascript">
+     // optional notification
+     showNotification();
+     // RASPViewer init
+     initIt();
+ </script>
 </body>
 </html>

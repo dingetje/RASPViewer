@@ -3,39 +3,65 @@
 <html>
 <head>
 <title>RASP Viewer User Guide</title>
+<link rel="stylesheet" href="css/leaflet-sidebar.css" />
+<script type="text/javascript" src="https://ko-fi.com/widgets/widget_2.js"></script>
 </head>
 <body>
 <h1><u>RASP viewer user guide</u></h1>
-<p>This page is derived from the work of Dr. Jack Glendening and Paul Scorer.</p>
+<p>This web site is derived from the work of Dr. Jack Glendening and Paul Scorer.</p>
 <h2>Side-bar:</h2>
-<p>Use the "side-bar" menu to open the desired setting. The "hamburger" menu will show the <strong>Selectors</strong>. The "map" menu item will result in the simple task planner controls. The "heart" will show the support page that you can use show your love for this site :-). The "?" will show the help controls. The "talk" icon will show the disclaimer and finally the "link" item will show the URL control, further explained below.
+<p>Use the "side-bar" menu to open the desired setting.
+<ul>
+<li>The "hamburger" <img src="img/burger.png" border="0"> menu will show the <strong>Selectors</strong>.</li>
+<li>The "map" <img src="img/map.png" border="0"> menu item will result in the simple task planner controls. </li>
+<li>The "areas" <img src="img/areas.png" border="0"> menu item will result in a page where you can jump to another area or select the old GUI</li>
+<li>The "heart" <img src="img/heart.png" border="0"> will show the support page that you can use show your love for this site :-).</li>
+<li>The "eye" <img src="img/eye.png" border="0"> will open the IGC viewer.</li>
+<li>The "?" <img src="img/help.png" border="0"> will show the help controls.</li>
+<li>The "talk" <img src="img/talk.png" border="0"> icon will show the disclaimer, and finally</li>
+<li>The "link" <img src="img/chain.png" border="0"> item will show the URL control, further explained below.</li>
+</ul>
 </p>
-<h2>Selectors:</h2>
+<h2>Selectors<img src="img/burger.png" border="0"></h2>
 <p>
-	The <strong>Day, Time, Full/Reduced Parameter set</strong> and the <strong>Parameter</strong> itself are all selectable in the table on the left.
+The <strong>Day, Time, Full/Reduced Parameter set</strong> and the <strong>Parameter</strong> itself are all selectable in the table on the left.
 </p>
 <p>
-  The <strong>Start Animation</strong> button can be used to advance the <strong>Time</strong> on a timer with the <strong>Delay</strong> time between steps. 
-  This works for the current selected <strong>Parameter</strong>. To stop, click the button again (will change into <strong>Stop Animation</strong>).
-  The <strong>Delay</strong> is configurable using the spin box.
+The <strong>Start Animation</strong> button can be used to advance the <strong>Time</strong> on a timer with the <strong>Delay</strong> time between steps. 
+This works for the current selected <strong>Parameter</strong>. To stop, click the button again (will change into <strong>Stop Animation</strong>).
+The <strong>Delay</strong> is configurable using the spin box.
 </p>
 <p> 
-  <strong>NB:</strong> do not set the <strong>Delay</strong> too short until all images for the current selected day have been loaded. 
-  After all RASP overlay images have been loaded, you can reduce the timer interval as short as 250 ms.
+ <strong>NB:</strong> do not set the <strong>Delay</strong> too short until all images for the current selected day have been loaded. 
+ After all RASP overlay images have been loaded, you can reduce the timer interval as short as 250 ms.
 </p>
-<p>The <strong>AirSpace</strong> checkboxes show/hide restricted airspace overlays. You can select as many as you wish. 
-<strong>NB:</strong> No NOTAMS and <strong>No Guarantees!</strong></p>
 
-<h2>Simple Task Planner</h2>
+<h2>Simple Task Planner <img src="img/map.png" border="0"></h2>
 <p>
   The <strong>Specify Task</strong> button can be used as a simple task planner. Turnpoints will be added as markers on the map. 
   Placing the mouse on a turnpoint will give you the turnpoint name, Left Click to add it to the task and the distance so far will be shown. 
   For a closed task, the Start-Finish point reports the End distance.
   Use <strong>Clear Task</strong> to remove the drawn task and <strong>Remove Waypoints</strong> to remove the turnpoint markers.
 </p>
-<p>The <strong>Disclaimer</strong> button will show the legal disclaimer.</p>
+<h2>Areas <img src="img/areas.png" border="0"></h2>
+<p>Use this button to select the desired area.</p>
 
-<h2>Link Page</h2>
+<h2>Support<img src="img/heart.png" border="0"></h2>
+<p>This page shows the sponsors of RASP and also the <div id="Coffee" title="Buy a Coffee for RASP blipmaps.nl">
+<script type="text/javascript">kofiwidget2.init('Support Me on Ko-fi', '#46b798', 'N4N2VIMO');kofiwidget2.draw();</script><style>img.kofiimg{display: initial!important;vertical-align:middle;height:13px!important;width:20px!important;padding-top:0!important;padding-bottom:0!important;border:none;margin-top:0;margin-right:5px!important;margin-left:0!important;margin-bottom:3px!important;content:url('https://storage.ko-fi.com/cdn/cup-border.png')}.kofiimg:after{vertical-align:middle;height:25px;padding-top:0;padding-bottom:0;border:none;margin-top:0;margin-right:6px;margin-left:0;margin-bottom:4px!important;content:url('https://storage.ko-fi.com/cdn/whitelogo.svg')}.btn-container{display:inline-block!important;white-space:nowrap;min-width:160px}span.kofitext{color:#fff !important;letter-spacing: -0.15px!important;text-wrap:none;vertical-align:middle;line-height:33px !important;padding:0;text-align:center;text-decoration:none!important; text-shadow: 0 1px 1px rgba(34, 34, 34, 0.05);}.kofitext a{color:#fff !important;text-decoration:none:important;}.kofitext a:hover{color:#fff !important;text-decoration:none}a.kofi-button{box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);line-height:36px!important;min-width:150px;display:inline-block!important;background-color:#29abe0;padding:2px 12px !important;text-align:center !important;border-radius:7px;color:#fff;cursor:pointer;overflow-wrap:break-word;vertical-align:middle;border:0 none #fff !important;font-family:'Quicksand',Helvetica,Century Gothic,sans-serif !important;text-decoration:none;text-shadow:none;font-weight:700!important;font-size:14px !important}a.kofi-button:visited{color:#fff !important;text-decoration:none !important}a.kofi-button:hover{opacity:.85;color:#f5f5f5 !important;text-decoration:none !important}a.kofi-button:active{color:#f5f5f5 !important;text-decoration:none !important}.kofitext img.kofiimg {height:15px!important;width:22px!important;display: initial;animation: kofi-wiggle 3s infinite;}@keyframes kofi-wiggle{0%{transform:rotate(0) scale(1)}60%{transform:rotate(0) scale(1)}75%{transform:rotate(0) scale(1.12)}80%{transform:rotate(0) scale(1.1)}84%{transform:rotate(-10deg) scale(1.1)}88%{transform:rotate(10deg) scale(1.1)}92%{transform:rotate(-10deg) scale(1.1)}96%{transform:rotate(10deg) scale(1.1)}100%{transform:rotate(0) scale(1)}}</style><link href="https://fonts.googleapis.com/css?family=Quicksand:400,700" rel="stylesheet" type="text/css"></div> button to show your love for this site! Any donation is appreciated.
+
+<h2>Help<img src="img/help.png" border="0"></h2>
+<p>The <strong>User Guide</strong> button will show this page.</p>
+<p>The <strong>Disclaimer</strong> button or <img src="img/talk.png" border="0"> will show the legal disclaimer to keep the lawyers happy...</p>
+<p>Also on this page is the change log as kept by the RASP maintainers of this site.</p>
+
+<h2>IGC Viewer<img src="img/eye.png" border="0"></h2>
+This tool allows you to upload an IGC log file and have it displayed on the map. Nothing is uploaded to the server,
+the data is completely processed within your web browser.
+<p>
+</p>
+
+<h2>Link Page <img src="img/chain.png" border="0"></h2>
 <p>To copy the <strong>Page URL</strong>, Right-Click on &ldquo;Page URL&rdquo; and select &ldquo;Copy Link Location&rdquo; (the exact words differ between browsers). You can then paste this into an email, or whatever.</p>
 
 <h2>On the Map:</h2>
@@ -46,11 +72,11 @@
 	The <strong>Opacity</strong> of the Overlay (i.e. of the RASP maps) can be adjusted using the <img width="24px" height="24px" src="img/higherOpacity.png" alt="+" align="center"> and <img width="24px" height="24px" src="img/lowerOpacity.png" alt="-" align="center"> buttons at Top-Right of the main map.
 </p>
 <p>
-The background map type can be selected by using the layer control <img src="img/layers.png" width="26" height="26" align="center" alt=""> in the upper right corner. Currenlty we support 3 map types, &ldquo;toner&rdquo;, &ldquo;terrain&rdquo; and &ldquo;OSM&rdquo; (Open Street Maps).
+The background map type can be selected by using the layer control <img src="img/layers.png" width="26" height="26" align="center" alt=""> in the upper right corner. Currenlty we support 3 map types, &ldquo;toner&rdquo;, &ldquo;terrain&rdquo; and &ldquo;OSM&rdquo; (Open Street Maps). This control also allows to show/hide the <strong>Soundings</strong> and <strong>Meteograms</strong> markers, as well as the <strong>Airspace</strong> layer (courtesey of <a href="https://openaip.net" target="_blank">openaip.net</a>).
 </p>
 <p>The <strong>Full Screen Toggle</strong> is a switch to enable full screen mode for browsers that support this (most do).</p>
 <p>
-	The map can be <strong>zoomed</strong> with the ScrollWheel, by DoubleLeftClicking or by using the &ldquo;+/-&rdquo; buttons at bottom right (as normal with Maps).
+	The map can be <strong>zoomed</strong> with the ScrollWheel, by DoubleLeftClicking or by using the &ldquo;+/-&rdquo; buttons (as normal with Maps).
   On devices with a touchscreen you can of course use the familiar two finger pinch and zoom gestures to zoom in or out.
 </p>
 
@@ -63,15 +89,44 @@ The background map type can be selected by using the layer control <img src="img
 <p>Note: when the value is displayed as a minus sign, then the data file for that parameter could not be found.</p>
 
 <div>
-	<strong>Soundings</strong> are available as a <strong>Parameter</strong> in the Full Set, selectable in the table on the left. 
-  They are also available by clicking the &ldquo;S&rdquo; symbols
-	<img width="20px" height="20px" src="data:image/*;base64,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" alt="" align="center" />
-	 which gives you the <strong>Sounding</strong> forecast for that location and time. 
-   These soundings are quick to display on the map. If you wish to look in more detail, 
-   you can Right-Click and select &ldquo;View Image&rdquo; (you currently need the &ldquo;Back&rdquo; button to return). 
+<p><strong>Soundings</strong> are available as a <strong>Parameter</strong> in the Full Set, selectable in the table on the left. 
+ They are also available by clicking these marker symbols
+ <img width="20px" height="20px" src="img/sndmkr.png" alt="S" align="center" /> on the map, 
+ which gives you the <strong>Sounding</strong> forecast for that location and time. 
+ These soundings will open in a new window, so make sure to allow for popups for this site. 
+</p>
 </div>
-<p>Note that you may need to allow PopUps in your browser.</p>
+
+<div>
+<p>
+	<strong>Meteograms</strong> are available as a <strong>Parameter</strong> in the Full Set, selectable in the table on the left. 
+  They are also available by clicking these marker symbols
+	<img width="20px" height="20px" src="img/wndmkr.png" alt="W" align="center" /> on the map, 
+	 which gives you the <strong>Meteogram</strong> forecast for that location for the selected date. 
+   These meteograms will open in a new window, so make sure to allow for popups for this site. 
+   A brief explanation of a meteogram can be seen <a href="meteograms.html" target="_blank">here</a>.
+</p>
+</div>
+
+<div>
+<p>
+	<strong>Soundings/Meteograms</strong> are locations that offer both a <strong>Sounding</strong> and a 
+	<strong>Meteogram</strong>. These are identified on the map with the following symbol
+	<img width="20px" height="20px" src="img/wndsndmkr.png" alt="#" align="center" /> on the map, 
+	 which gives you the <strong>Meteogram</strong> forecast for that location for the selected date when
+	 left clicked. Use Ctrl + Left Click to open the <strong>Sounding</strong> for the selected time. 
+   These meteogram or sounding plot will open in a new window, so make sure to allow for popups for this site. 
+</p>
+</div>
 
 <h2>Note for Touch Screen Users</h2>
-<p>There is no Right-Click on a Touch Screen! A Right-Click is replaced by a &ldquo;Long Click&rdquo; (currently 3 seconds) - 
+<p>There is no Right-Click on a Touch Screen! A Right-Click is replaced by a &ldquo;Long Click&rdquo; (currently 1 second) - 
 this works for a mouse too. <strong>Opacity</strong> is adjustable only with the buttons at Top-Right.</p>
+<p>Control + Left Click is also not available, as a work around use the <strong>Parameter</strong> selection in the Full Set.</p>
+
+<div>
+<h2>No popup?</h2>
+<p>Don't want to see the popup when opening the website? Add "?nopopup" to the bookmark address.</p>
+<p>For example: <a href="https://blipmaps.nl/NETHERLANDS/?nopopup" target="_blank">https://blipmaps.nl/NETHERLANDS/?nopopup</a></p>
+<p>The same information (news) in the popup is also visible in the <b>Help</b> tab.</p>
+</div>

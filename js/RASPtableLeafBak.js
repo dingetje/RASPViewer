@@ -41,15 +41,6 @@
  *
  * 16-Mar-2020
  * - added history NL-1 ... NL-7
- *
- * 05-Dec-2020
- * - added IGC vieuwer
- *
- * 05-Jan-2021
- * - added meteograms
- * 
- * 03-Mar-2021
- * - changed numbering scheme of meteograms to use same numbering as sitedata.ncl
  */
 
 /* 
@@ -59,7 +50,6 @@
 var oldDayIndex;
 var Loaded        = [];
 var SoundingPics  = [];
-var MeteogramPics = [];
 var Overlays      = [];
 var theTitles     = [];
 var theScales     = [];
@@ -72,14 +62,13 @@ var tileLayer;
 var higherOpacity;
 var lowerOpacity;
 var blipSpotPopup = false;
-//var tonerLayer;
-//var terrainLayer;
+var tonerLayer;
+var terrainLayer;
 //var paramDescriptionWindow;
 var fullSet;
 var parameterDescription;
 var parameterName;
-var openaip_layer;
-var firstSize = 1;
+
 var oldParam;
 var times;
 
@@ -87,8 +76,6 @@ var map;
 var overlay = null; /* RASP overlay */
 var SoundingMarkerArray = [];
 var SoundingGroup;
-var MeteogramMarkerArray = [];
-var MeteogramGroup;
 var infoArray = [];
 var taskMarkerArray = [];
 var TPmarkerArray = []; // all Turnpoint markers
@@ -111,22 +98,6 @@ var waslong = "N";  // longclick
 var wasSounding = false ;
 var HISTORY_DAYS = 7;
 
-var trackLatLong = [];
-var timePositionMarker;
-var planeIcon;
-var baseLayers;
-var layersControl;
-var control = false;
-
-function showAirspace() {
-  if (map.getZoom() >= 12 && !map.hasLayer(openaip_layer)) {
-      openaip_layer.addTo(map);
-  }
-  else {
-      openaip_layer.redraw();
-  }
-}
-
  /***********************
  * initIt()             *
  *                      *
@@ -135,14 +106,16 @@ function showAirspace() {
  ***********************/
 function initIt()
 {
-  // keep track of the Control key
-  $(document).on('keyup keydown', function(e) { control = e.ctrlKey; });
-
   document.body.style.overflow = "hidden"; // Disable Scrolling
   window.onresize = function(){setSize(); doChange(); }
 
   oldDayIndex = document.getElementById("Day").options.selectedIndex;
   oldParam = document.getElementById("Param").options.value;
+
+  /* There is a bug in FF 1.5 & 2 with DOMMouseScroll - look for ffversion below */
+//  if (/Firefox[\/\s](\d+\.\d+)/.test(navigator.userAgent)){ //test for Firefox/x.x or Firefox x.x (ignoring remaining digits);
+//    ffversion=new Number(RegExp.$1) // capture x.x portion and store as a number
+//  }
 
   /**********************/
   /* Build the Day Menu */
@@ -226,9 +199,9 @@ function initIt()
       document.getElementById("Time").options[i].selected = true;
   }
 
-  document.getElementById("Day").options[HISTORY_DAYS].selected = true;     // Today
-  document.getElementById("Param").options[10].selected  = true;		    // pdf_tot
-  document.getElementById("popup").info[0].checked      = true;       		// "Value" in infoWindow (not "Day" or "SkewT")
+  document.getElementById("Day").options[0+HISTORY_DAYS].selected    = true;       // Today
+  document.getElementById("Param").options[paramListLite.length-1].selected  = true;       // pdf_tot
+  document.getElementById("popup").info[0].checked      = true;       // "Value" in infoWindow (not "Day" or "SkewT")
   // use jQuery to set tooltip text
 //  $("#paramTooltip").attr('data-tooltip', paramListLite[document.getElementById("Param").selectedIndex][3]);
 
@@ -246,7 +219,7 @@ function initIt()
   // Save the original Selector Table Height
   origTblHt = document.getElementById("selectors").offsetHeight;
 
-  // default self hosted OSM map tiles
+  // default self hosted map tiles
   var maptype="mapbox.streets";
 
   /*****************************************
@@ -289,14 +262,23 @@ function initIt()
         dateNow.setHours(0, 0, 0, 0);
         // Build requested date
         var newDate = new Date(prams[1].substr(0,4), prams[1].substr(4,2) - 1, prams[1].substr(6,2), 0, 0, 0, 0);
-        var diffDays = parseInt((newDate - dateNow) / (1000 * 60 * 60 * 24), 10);
-//        alert("dateNow = " + dateNow + "\nnewDate = " + newDate + "\ndiffDays = " + diffDays);
-        if(diffDays >= -1*HISTORY_DAYS && diffDays <= SAVE_DAYS){
-            day.options[diffDays + HISTORY_DAYS].selected = true;
-        }
-        else {
-            alert("No forecast for " + newDate.toDateString());
+        if(newDate >= dateNow){
+          // Set forecast date Menu Option
+          for(j = 1; j < SAVE_DAYS; j++){
+            dateNow.setDate(dateNow.getDate() + 1);
+            // alert("dateNow = " + dateNow + "\nnewDate = " + newDate);
+            if(newDate.getFullYear() == dateNow.getFullYear()
+              && newDate.getMonth() == dateNow.getMonth()
+              && newDate.getDate() == dateNow.getDate()){
+                day.options[j].selected = true;
+                break;
+            }
           }
+          dateNow.setDate(dateNow.getDate());
+          if(newDate > dateNow) {
+            alert("No forecast for " + newDate.toDateString() + " - Too far ahead!");
+          }
+        }
       }
       if(prams[0] == "opacity"){
         opacity = parseInt(prams[1]);
@@ -318,55 +300,37 @@ function initIt()
     }
   }
 
-  // create the map tile layers 
-//  var tonerLayer = new L.StamenTileLayer("toner", { id: 'mapbox.toner' });
-//  var terrainLayer = new L.StamenTileLayer("terrain", { id: 'mapbox.terrain' });
-
-// self hosted OpenStreetMap tiles
+  // create the OSM tile layers 
+  var tonerLayer = new L.StamenTileLayer("toner", { id: 'mapbox.toner' });
+  var terrainLayer = new L.StamenTileLayer("terrain", { id: 'mapbox.terrain' });
   var ownLayer = L.tileLayer('https://blipmaps.nl/OSM/{z}/{x}/{y}.png', {
     attribution: 'Map tiles by <a href="http://openstreetmap.org" target="_blank">&copy; OpenStreetMap contributors</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
     maxZoom: 12,
-    minZoom: 7,
+    minZoom: 6,
     id: 'mapbox.streets'});
 
   // for Stamen class, for some reason minZoom, maxZoom options were not set when passed through via options
   // so explicit set them via their options
-//  tonerLayer.options.maxZoom = 12;
-//  tonerLayer.options.minZoom = 7;
-//  terrainLayer.options.maxZoom = 12;
-//  terrainLayer.options.minZoom = 7;
+  tonerLayer.options.maxZoom = 12;
+  tonerLayer.options.minZoom = 6;
+  terrainLayer.options.maxZoom = 12;
+  terrainLayer.options.minZoom = 6;
 
-//  if (maptype === "mapbox.toner") {
-//    tileLayer = tonerLayer;
-//  }
-//  if (maptype === "mapbox.terrain") {
-//    tileLayer = terrainLayer;
-//  }
+  if (maptype === "mapbox.toner") {
+    tileLayer = tonerLayer;
+  }
+  if (maptype === "mapbox.terrain") {
+    tileLayer = terrainLayer;
+  }
   if (maptype === "mapbox.streets") {
     tileLayer = ownLayer;
   }
-  // create the OpenAIP airspace layer
-//  openaip_layer = new L.TileLayer("https://api.tiles.openaip.net/api/data/airspaces/{z}/{x}/{y}.png?apiKey=fff7bd9e92b36711f381ed7cf39d2517", {
-  openaip_layer = new L.TileLayer("https://api.tiles.openaip.net/api/data/openaip/{z}/{x}/{y}.png?apiKey=fff7bd9e92b36711f381ed7cf39d2517", {
-    attribution: 'Airspace tiles by <a href="https://www.openaip.net" target="_blank">&copy; OpenAip</a>.',
-    maxZoom: 12,
-    minZoom: 7,
-    detectRetina: true,
-    subdomains: '12',
-    format: 'image/png',
-    transparent: true,
-  });
-
-  //
-  // add base map layers
+    
+  // create the map object
   //                                       0          1           2
-  map = new L.map('map',{layers:[ownLayer /*, tonerLayer, terrainLayer*/]});
+  map = new L.map('map',{layers:[ownLayer, tonerLayer, terrainLayer]});
   // do not allow to move out of these boundaries
   // map.setMaxBounds(corners.Bounds[resolution]);
-
-  // Add airspace layer to the map
-  openaip_layer.setOpacity(0.5);
-  openaip_layer.addTo(map);
 
   // add a scale control to the map
   L.control.scale().addTo(map);
@@ -398,30 +362,23 @@ function initIt()
   // sounding markers
   addSndMarkers();
 
-  // meteogram markers
-  addMeteogramMarkers();
-
   // add the layer control
-  baseLayers = {
+  var baseLayers = {
     "OSM": ownLayer,
-  //  "Toner": tonerLayer,
-  //  "Terrain": terrainLayer,
+    "Toner": tonerLayer,
+    "Terrain": terrainLayer,
   };
-  // Optional layers
-  var optionLayers = {
+  // Soundings
+  var soundingLayer = {
 	  "Soundings": SoundingGroup,
-	  "Meteograms": MeteogramGroup,
-	  "Airspace": openaip_layer,
   };
-
-  // add visibility control to the map
-  layersControl = L.control.layers(baseLayers,optionLayers).addTo(map);
-  // Soundings and Meteograms visible by default
+  L.control.layers(baseLayers, soundingLayer).addTo(map);
+  // enable Soundings visible by default
   var layerControlSounding = document.getElementsByClassName('leaflet-control-layers-overlays')[0];
   if (layerControlSounding) {
      layerControlSounding.getElementsByTagName('input')[0].click();
-     layerControlSounding.getElementsByTagName('input')[1].click();
   }
+  
   // add the tiles layer to the map
   tileLayer.addTo(map);
     
@@ -436,12 +393,12 @@ function initIt()
       case "mapbox.streets":
          layerControlElement.getElementsByTagName('input')[0].click();
          break;
-//      case "mapbox.toner":
-//         layerControlElement.getElementsByTagName('input')[1].click();
-//         break;
-//      case "mapbox.terrain":
-//         layerControlElement.getElementsByTagName('input')[2].click();
-//         break;
+      case "mapbox.toner":
+         layerControlElement.getElementsByTagName('input')[1].click();
+         break;
+      case "mapbox.terrain":
+         layerControlElement.getElementsByTagName('input')[2].click();
+         break;
     }   
   }
   // add opacity controls in upper right corner
@@ -449,15 +406,7 @@ function initIt()
 
   // add sidebar
   var sidebar = L.control.sidebar('sidebar').addTo(map);
- 
-  // create plane icon for IGC Viewer
-  L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
-  planeIcon = L.AwesomeMarkers.icon({
-        icon: 'plane',
-        iconColor: 'white',
-        markerColor: 'red'
-    });
-	
+  
   setSize();
 
   map.on('click', function(event) { L_click(event);}); 
@@ -478,8 +427,6 @@ function initIt()
   
   url = location.href;
   head = url.slice(0, url.lastIndexOf('/'))
-
-  /* old KML based airspace
   var airspacetype = document.getElementById("airspace");
   for(i = 0; i < airspacetype.length; i++){
 	airspacetype[i].checked = false;  // Clear Airspace checkboxes
@@ -489,7 +436,7 @@ function initIt()
 		var airspaceForm = document.getElementById("airspaceForm");
 		airspace.style.display = 'none';
 	}
-  }*/
+  }
 
   // add handler for Full Screen change detected
   if (screenfull.enabled) {
@@ -617,12 +564,11 @@ function constrainMap(E)
   // Check that overlay corners are within ViewPort
   if( !VPbounds.intersects(corners.Bounds[resolution])){
     if(confirm("Map Outside ViewPort\nReCentre?")){
-      map.setView(corners.Centre[resolution],zoom);
+      map.setView(corners.Centre[resolution]);
     }
   }
   centre = map.getCenter();
   zoom = map.getZoom();
-  showAirspace();
   doUrl();
 }
 
@@ -644,38 +590,24 @@ function addSndMarkers()
 
   for(i = 1; i < soundings.LOC.length; i++ ){ // No Sounding0 !!
     if (soundings.NAM[i] != undefined) {
-	  // skip marker if there's a meteogram at this location
-	  skip = 0;
-	  for(ii=0; ii<meteograms.REGION_START.length && !skip; ii++) {
-		for(iii = meteograms.REGION_START[ii]; iii < meteograms.REGION_END[ii] && !skip; iii++) {
-			if (meteograms.NAM[iii] === soundings.NAM[i]) {
-				skip = 1;
-				break;
-			}
-		}
-	  }
-	  if (skip) continue;
-	  
       var marker = L.marker(soundings.LOC[i], {icon: sndIcon, myId: i});
       marker.bindTooltip(soundings.NAM[i], { permanent: false, direction: 'bottom'} );
       // and the popup function
       marker.on('click', function(e) {
-       // Use the id to find the marker      
+       // Use the lat, lon to find the marker      
       var id = this.options.myId;
-      var sndURL = Server + getBasedir() + '/sounding' + id + '.curr.'
-		      	+ document.getElementById("Time").value
-           		+ 'lst.d2.png';
-
-      var imgURL = '<img src="' + sndURL + '" height=400 width=320>'; 
+      var sndURL = '<img src="' + Server + getBasedir() + '/';
+      sndURL += '/sounding' + id + '.curr.'
+           + document.getElementById("Time").value 
+           + 'lst.d2.png" height=400 width=320>' ;
 
       ctrFlag = true;
-/*      var popupSounding = L.popup({maxWidth:imgWid/2})
+      var popupSounding = L.popup({maxWidth:imgWid/2})
         .setLatLng(soundings.LOC[id])
-        .setContent(imgURL)
+        .setContent(sndURL)
         .openOn(map);
-	*/
-	window.open(sndURL, '_blank').focus();
 
+      infoArray.push(popupSounding);        
     });
     SoundingMarkerArray.push(marker);
    }
@@ -683,88 +615,6 @@ function addSndMarkers()
   SoundingGroup = L.layerGroup(SoundingMarkerArray);
 }
 /**************** End SOUNDINGS Markers *************************************************/
-
-/**************** Meteogram Markers *************************************************/
-
-function addMeteogramMarkers()
-{
-  // Install the Meteogram markers - but only if needed
-  if(MeteogramMarkerArray && MeteogramMarkerArray[0]){  // No Meteograms?
-    return;
-  }
-  var siz    = 20;
-  var anchor = siz / 2;
-  var wndIcon = new L.icon( {
-                     iconUrl: 'img/wndmkr.png',   // url
-                     iconSize: [siz,siz],         // size (duh!)
-                     iconAnchor: [anchor,anchor]  // anchor
-  });
-  // combined Sounding/Meteogram location
-  var wndSndIcon = new L.icon( {
-                     iconUrl: 'img/wndsndmkr.png',// url
-                     iconSize: [siz,siz],         // size (duh!)
-                     iconAnchor: [anchor,anchor]  // anchor
-  });
-  var iii = 0;
-  var unique = 1;
-  for(ii=0; ii<meteograms.REGION_START.length; ii++) {
-	for(iii = meteograms.REGION_START[ii]; iii < meteograms.REGION_END[ii]; iii++) {
-      if (meteograms.NAM[iii] != undefined) {
-    	unique = 1;
-		// overlap with sounding for this location?
-    	for(i=1; i< soundings.LOC.length; i++){
-	      if(soundings.NAM[i] === meteograms.NAM[iii]){
-		    unique = 0;
-		    break;
-	      }
-	    }
-	  }
-      var marker;
-      if (unique) {
-    	 // pure meteogram marker
- 	     marker = L.marker(meteograms.LOC[iii], {icon: wndIcon, myId: iii});
-      }
-      else {
-	     // mixed soundings/meteogram marker
-	     marker = L.marker(meteograms.LOC[iii], {icon: wndSndIcon, myId: iii});
-      }
-      marker.bindTooltip(meteograms.NAM[iii], { permanent: false, direction: 'bottom'} );
-      // and the popup function
-      marker.on('click', function(e) {
-		var id = this.options.myId;
-    		var sounding_id = 0;
-    		for(ii=1; ii< soundings.LOC.length; ii++){
-	    		if(soundings.NAM[ii] === meteograms.NAM[id]){
-		    		sounding_id = ii;
-		   		break;
-	    	}
-		}
-		var wndURL;
-		if(sounding_id){
-			if (!control) { // left click = meteogram 
-				wndURL = Server + getBasedir() + '/meteogram_' + meteograms.NAM[id] + '.png';
-			}
-			else { // ctrl + left click = sounding
-				wndURL = Server + getBasedir() + '/sounding';
-				wndURL += sounding_id + '.curr.'
-		           	+ document.getElementById("Time").value
-		           	+ 'lst.d2.png';
-			}
-		}
-		else {
-			wndURL = Server + getBasedir() + '/meteogram_' + meteograms.NAM[id] + '.png';
-		}
-		ctrFlag = true;
-		// open in new window, meteograms are too big for a popup
-		window.open(wndURL, '_blank').focus();
-
-    });
-    MeteogramMarkerArray.push(marker);
-   }
-  }
-  MeteogramGroup = L.layerGroup(MeteogramMarkerArray);
-}
-/**************** End WINDGRAM Markers *************************************************/
 
 
 /******************* Start TRACK AVERAGE Stuff ***************************/
@@ -980,10 +830,6 @@ function timerTick()
     if (timerId) animateTimer(); // stop timer
     return;
   }
-  if (document.getElementById("Param").value === "grid") {
-    if (timerId) animateTimer(); // stop timer
-    return;
-  }
   if (document.getElementById("Param").value === "pfd_tot") {
     if (timerId) animateTimer(); // stop timer
     return;
@@ -1053,7 +899,6 @@ function checkParam()
   badParams[16] = "sounding15";
   badParams[17] = "sounding23";
   badParams[18] = "pfd_tot";
-  badParams[19] = "meteogram0";
 
   var param =document.getElementById("Param").value;
   for(i = 0; i < badParams.length; i++) 
@@ -1157,7 +1002,6 @@ function setSize()
   var zoomBox;
   var scaleBox;
   var sideScaleBox;
-  var knvvlLogo;
 
   if(document.body.clientWidth !== undefined) { // IE in various versions
     imgHt  = document.body.clientHeight;
@@ -1251,13 +1095,6 @@ function setSize()
   scaleObj.style.height   = botHeight  + "px";
   scaleObj.style.width    = zoomBox.style.width;
 
-  knvvlLogo = document.getElementById("knvvl");
-  knvvlLogo.style.position = "relative";
-  knvvlLogo.style.top = "0px";
-  knvvlLogo.style.left = imgWid - sideWidth + "px";
-  knvvlLogo.style.width = "91px";
-  knvvlLogo.style.height = "40px";
-
   /* Now do the Selectors */
 
   tblHt = document.getElementById("selectors").offsetHeight;
@@ -1274,8 +1111,8 @@ function setSize()
 
   else {              // The big Tables will fit
     document.getElementById("Param").size = paramListLite.length;
-    document.getElementById("Time").size  = 1;
-    document.getElementById("Day").size   = 1;
+    document.getElementById("Time").size  = SAVE_DAYS;
+    document.getElementById("Day").size   = SAVE_DAYS;
   }  
 
 /*  if (screenfull.enabled) {
@@ -1340,11 +1177,17 @@ function doChange(E)
   if(document.getElementById("Param").value === "nope1" ) {
     return 0;   // Catch a stupid selection
   }
+//  if (paramDescriptionWindow) {
+//	  if (paramDescriptionWindow.isOpen()) {
+//		  paramDescriptionWindow.remove();
+//	  }
+//  }
+	  
   if(oldParam !== document.getElementById("Param").value) {
 	  /*  Descriptions are popups now */
 	  if(fullSet){
 		  parameterDescription=paramListFull[document.getElementById("Param").selectedIndex][3];
-		  parameterName=paramListFull[document.getElementById("Param").selectedIndex][2];
+      parameterName=paramListFull[document.getElementById("Param").selectedIndex][2];
 	  }
 	  else {
 		  parameterDescription=paramListLite[document.getElementById("Param").selectedIndex][3];
@@ -1407,30 +1250,31 @@ function doUrl() // Set up URL link
   var T      = new Date();  // Initialised to "Now"
   var str = location.href.split("?")[0]
   offset = document.getElementById("Day").selectedIndex;
-  T.setDate(T.getDate() + offset - 7);  // DayOfMonth 
+  if(offset > 1){
+      T.setDate(T.getDate() + offset);  // DayOfMonth 
+  }
   month = T.getMonth() + 1; // month now 1 to 12
   month = (month < 10) ? "0" + month : month;
-  date  = T.getDate();	   // Day as number 1 to 31
+  date  = T.getDate();
   date  = (date < 10) ? "0" + date : date;
   year  = T.getFullYear();
 
-  // active maptype
-  maptype="mapbox.streets";
+    // active maptype
   var layerControlElement = document.getElementsByClassName('leaflet-control-layers')[0];
   if (layerControlElement) {
     if (layerControlElement.getElementsByTagName('input')[0].checked){
       maptype="mapbox.streets";
     }
-//    if (layerControlElement.getElementsByTagName('input')[1].checked){
-//      maptype="mapbox.toner";
-//    }
-//    if (layerControlElement.getElementsByTagName('input')[2].checked){
-//      maptype="mapbox.terrain";
-//    }
+    if (layerControlElement.getElementsByTagName('input')[1].checked){
+      maptype="mapbox.toner";
+    }
+    if (layerControlElement.getElementsByTagName('input')[2].checked){
+      maptype="mapbox.terrain";
+    }
   }
   
-  str += "?nopopup"
-      + "&date="    + year + month + date
+  str += "?"
+      + "date="     + year + month + date
       + "&param="   + document.getElementById("Param").value
       + "&time="    + document.getElementById("Time").value
       + "&zoom="    + zoom
@@ -1455,7 +1299,7 @@ function loadImage(dirn)
   deleteInfo();   // Remove the InfoWindows
 
   // topography is pretty static...
-  if(param == "topo" || param == "grid"){
+  if(param == "topo"){
     imgURL = "topo/";
   }
   else {
@@ -1471,39 +1315,18 @@ function loadImage(dirn)
         ximgURL += resolution;  // no time needed for topo picture
       }
       else{
-        if(param != "pfd_tot" && param != "grid") {
+        if(param != "pfd_tot") {
           ximgURL += ".curr." + t + "lst.d2" ;
         }
       }
       if(param.match("sounding")){
         isSounding = true;
-        isMeteogram = false;
         siz = (Format == "Landscape" ? imgHt : imgWid);
         SoundingPics[x] = new Image(siz, siz);
         SoundingPics[x].src = ximgURL + ".png" ;
       }
-      else if(param.match("meteogram")){
-        isSounding = true;
-        isMeteogram = true;
-        var ix = param.indexOf("#");
-        var id = parseInt(param.substring(ix+1));
-        // check for valid id
-        if (id>0) {
-          for(ii=0; ii<meteograms.REGION_START.length; ii++) {
-            for(iii = meteograms.REGION_START[ii]; iii < meteograms.REGION_END[ii]; iii++) {
-              if (id == iii) {
-                siz = (Format == "Landscape" ? imgHt : imgWid);
-                MeteogramPics[x] = new Image(siz, siz);
-                MeteogramPics[x].src = imgURL + "meteogram_" + meteograms.NAM[id] + ".png";
-                break;
-              }
-            }
-          }
-        }
-      }
       else{
         isSounding = false;
-        isMeteogram = false;
         theTitles[x].src     = ximgURL + ".head.png";
         theSideScales[x].src = ximgURL + ".side.png";
         theScales[x].src     = ximgURL + ".foot.png";
@@ -1520,7 +1343,7 @@ function loadImage(dirn)
     x = (x < 0) ? times.length - 1 : x;
   }
 
-  // Install the new Overlay or Sounding/Meteogram
+  // Install the new Overlay or Sounding
   var imgData = document.getElementById("imgdata");
   if(!isSounding){  // Map
     if(wasSounding){
@@ -1544,33 +1367,18 @@ function loadImage(dirn)
     document.getElementById("theTitle").src     = theTitles[tIdx].src;
     document.getElementById("theScale").src     = theScales[tIdx].src;
     document.getElementById("theSideScale").src = theSideScales[tIdx].src;
-    document.getElementById("knvvl").style.visibility = 'visible';
 
     overlay.setOpacity();
   }
-  else {  // Sounding or Meteogram
+  else {  // Sounding
     if(wasSounding == false){
       wasSounding = true;
       if(!imgFragment) imgFragment = document.createDocumentFragment();
       imgFragment.appendChild( document.getElementById("imgDiv")); // "appending" imgData removes it from old tree
-      if(!isMeteogram) {
-      	imgData.insertBefore( SoundingPics[tIdx], imgData.firstChild);
-        document.getElementById("knvvl").style.visibility = 'hidden';
-	  }
-      else {
-      	imgData.insertBefore( MeteogramPics[tIdx], imgData.firstChild);
-        document.getElementById("knvvl").style.visibility = 'hidden';
-      }
+      imgData.insertBefore( SoundingPics[tIdx], imgData.firstChild);
     }
     else {
-      if(!isMeteogram) {
-      	imgData.replaceChild( SoundingPics[tIdx], imgData.firstChild);
-        document.getElementById("knvvl").style.visibility = 'hidden';
-	  }
-      else {
-      	imgData.replaceChild( MeteogramPics[tIdx], imgData.firstChild);
-        document.getElementById("knvvl").style.visibility = 'hidden';
-      }
+      imgData.replaceChild( SoundingPics[tIdx], imgData.firstChild);
     }
     dunnit = imgData.firstChild.getAttribute("done");
     if( !dunnit || (dunnit && dunnit.length == 0)){ // null OR a zero-length string if no attribute
@@ -1597,7 +1405,6 @@ var imgFragment = null;
 
 function doAirspace()
 {
-  /* old KML based airspaces
   var airspacetype = document.getElementById("airspace");
 
   for(i = 0; i < airspacetype.length; i++){
@@ -1635,7 +1442,6 @@ function doAirspace()
 	  }
     }
   }
-  */
 }
 
 
@@ -1694,6 +1500,24 @@ function R_click(E)
            + "&param=" + parameter;
       doCallback(blipSpotUrl, tail, E, infoPopup);
       break;
+  
+  case "XBL":
+      if (parameter.startsWith("press")) {
+	 blipSpotUrl = Server + "cgi-bin/extra/get_rasp_xbl.cgi";
+     	 tail = "region=NETHERLANDS" 
+           + "&grid=d2"
+           + "&day=0"
+           + "&lat="        + lat
+           + "&lon="        + lon
+           + "&time="       + document.getElementById("Time").value
+           + "&param=" + parameter;
+	 showLoading();
+         doCallback(blipSpotUrl, tail, E, infoPopup);
+      }
+      else {
+        addInfo(E.latlng, "<pre>XBL Plot is only supported\nfor WAVE parameters\n(see Full Set)</pre>");
+      }
+      break;
   }
 }
 
@@ -1735,11 +1559,7 @@ function addInfo(location, txt, infoType)
 	if(longline)  // Allow for bottom scrollbar
 	    nlines++;
 
-	var maxW = imgWid/3;
-	if (longline) {
-		maxW = imgWid/1.4;
-	}
-	var infoWindow = new L.popup( { maxWidth: maxW, minWidth: 200, className: 'custom-popup' })
+	var infoWindow = new L.popup( { maxWidth: imgWid/3, minWidth: 200 })
             .setLatLng(location)
             .setContent('<div style="height: ' + nlines + ' em;" >' + txt + '</div>')
             .openOn(map);

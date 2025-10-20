@@ -141,6 +141,12 @@ soundings.LON[15]    = 3.0870;
 soundings.NAM[15]    = "Lille";
 soundings.LOC[15]    = new L.latLng(soundings.LAT[15], soundings.LON[15]);
 
+/* Sounding 18 */
+soundings.LAT[18]    = 52.0567;
+soundings.LON[18]    = 5.9233;
+soundings.NAM[18]    = "Terlet";
+soundings.LOC[18]    = new L.latLng(soundings.LAT[18], soundings.LON[18]);
+
 /* Sounding 23 */
 soundings.LAT[23]    = 52.4667;
 soundings.LON[23]    = 6.3361;
