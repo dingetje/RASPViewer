@@ -346,8 +346,7 @@ function initIt()
     tileLayer = ownLayer;
   }
   // create the OpenAIP airspace layer
-//  openaip_layer = new L.TileLayer("https://api.tiles.openaip.net/api/data/airspaces/{z}/{x}/{y}.png?apiKey=fff7bd9e92b36711f381ed7cf39d2517", {
-  openaip_layer = new L.TileLayer("https://api.tiles.openaip.net/api/data/openaip/{z}/{x}/{y}.png?apiKey=fff7bd9e92b36711f381ed7cf39d2517", {
+  openaip_layer = new L.TileLayer("https://api.tiles.openaip.net/api/data/openaip/{z}/{x}/{y}.png?apiKey=get_your_own_api_key", {
     attribution: 'Airspace tiles by <a href="https://www.openaip.net" target="_blank">&copy; OpenAip</a>.',
     maxZoom: 12,
     minZoom: 7,
