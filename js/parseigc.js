@@ -35,6 +35,7 @@ function parseIGC(igcFile) {
             'LXV': 'LXNAV d.o.o.',
             'WES': 'Westerboer',
             'XCS': 'XCSoar',
+            'XCT': 'XCTrack',
             'ZAN': 'Zander'
         };
 
@@ -53,8 +54,10 @@ function parseIGC(igcFile) {
 
     // Extracts the flight date from the IGC file.
     function extractDate(igcFile) {
-        // Date is recorded as: HFDTEddmmyy (where HFDTE is a literal and dddmmyy are digits).
-        var dateRecord = igcFile.match(/H[FO]DTE([\d]{2})([\d]{2})([\d]{2})/);
+        // Date is recorded as: HFDTEddmmyy (where HFDTE is a literal and dddmmyy are digits),
+        // OR in the case of XCTrack the format is:
+        // HFDTEDATE:150522,01
+        var dateRecord = igcFile.match(/H[FO]DTE(?:DATE\:)?([\d]{2})([\d]{2})([\d]{2})/);
         if (dateRecord === null) {
             throw new IGCException('The file does not contain a date header.');
         }
@@ -77,18 +80,18 @@ function parseIGC(igcFile) {
     function parseHeader(headerRecord) {
         var headerSubtypes = {
             'PLT': 'Pilot',
-            'CM2': 'Co-Pilot',
-            'GTY': 'Glider',
+            'CM2': 'Crew member 2',
+            'GTY': 'Glider type',
             'GID': 'Glider ID',
             'DTM': 'GPS Datum',
-            'RFW': 'Firmware',
-            'RHW': 'Hardware',
-            'FTY': 'Type',
+            'RFW': 'Firmware version',
+            'RHW': 'Hardware version',
+            'FTY': 'Flight recorder type',
             'GPS': 'GPS',
-            'PRS': 'Pres. Sensor',
+            'PRS': 'Pressure sensor',
             'FRS': 'Security suspect, use validation program',
-            'CID': 'Comp. ID',
-            'CCL': 'Class'
+            'CID': 'Competition ID',
+            'CCL': 'Competition class'
         };
 
         var headerName = headerSubtypes[headerRecord.substring(2, 5)];
@@ -223,12 +226,12 @@ function parseIGC(igcFile) {
     
     var manufacturerInfo = parseManufacturer(igcLines[0]);
     model.headers.push({
-        name: 'Logger',
+        name: 'Logger manufacturer',
         value: manufacturerInfo.manufacturer 
     });
     
     model.headers.push({
-        name: 'Serial #',
+        name: 'Logger serial number',
         value: manufacturerInfo.serial
     });
 
